@@ -17,6 +17,40 @@ let selectedTelco = "";
 function money(n){ return Number(n || 0).toLocaleString("vi-VN"); }
 
 /* =======================
+   HELPERS
+   ======================= */
+function genRequestId(){
+  // request_id nên unique để TrumThe không bị trùng
+  return "REQ" + Date.now() + Math.floor(Math.random() * 1000);
+}
+
+function getSingleCartItem(){
+  const items = Object.entries(cart); // [ [id, {name, price, qty}], ... ]
+  if(items.length !== 1) return null;
+  const [id, item] = items[0];
+  if(item.qty !== 1) return null;
+  return { id, ...item };
+}
+
+async function callTrumtheCharge({ telco, code, serial, amount, request_id }){
+  // Gọi netlify function cùng domain (an toàn, khỏi lo domain)
+  const res = await fetch("/.netlify/functions/trumthe-charge", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ telco, code, serial, amount, request_id })
+  });
+
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+  if(!res.ok){
+    throw new Error(data?.message || data?.raw || ("HTTP " + res.status));
+  }
+  return data;
+}
+
+/* =======================
    LOADING + ACCOUNT UI
    ======================= */
 function showLoginLoading(){
@@ -41,7 +75,7 @@ function setLoggedInUI(username){
   if(handleEl) handleEl.textContent = "@" + username;
 
   const avatarEl = document.getElementById("accountAvatar");
-  if(avatarEl) avatarEl.src = "assets/images/roblox-icon.jpg"; // đổi ảnh bạn muốn ở đây
+  if(avatarEl) avatarEl.src = "assets/images/roblox-icon.jpg";
 }
 
 function logout(){
@@ -73,7 +107,6 @@ function login(){
   const error = document.getElementById("usernameError");
   const u = input.value.trim();
 
-  // reset lỗi
   input.classList.remove("is-error");
   if(error) error.hidden = true;
 
@@ -86,7 +119,6 @@ function login(){
     return;
   }
 
-  // nhập toàn số => báo lỗi đỏ
   if(/^\d+$/.test(u)){
     input.classList.add("is-error");
     if(error){
@@ -98,7 +130,6 @@ function login(){
     return;
   }
 
-  // ✅ Đăng nhập thành công -> hiện loading -> hiện thông tin tài khoản
   loggedIn = true;
   showLoginLoading();
 
@@ -218,7 +249,7 @@ function updateUI(){
 }
 
 /* =======================
-   MODAL PAYMENT (ẢNH 2)
+   MODAL PAYMENT
    ======================= */
 function buildModalItems(){
   const modalItems = document.getElementById("modalItems");
@@ -253,10 +284,15 @@ function syncModalPayBtnState(){
   const seri = document.getElementById("cardSeriModal")?.value.trim() || "";
   const code = document.getElementById("cardCodeModal")?.value.trim() || "";
 
-  const ok = !!selectedTelco && /^\d{6,20}$/.test(seri) && /^\d{6,20}$/.test(code) && total > 0 && loggedIn;
+  const ok =
+    !!selectedTelco &&
+    /^\d{6,20}$/.test(seri) &&
+    /^\d{6,20}$/.test(code) &&
+    total > 0 &&
+    loggedIn;
+
   payBtn.disabled = !ok;
 
-  // luôn hiển thị mệnh giá = tổng đơn (giống ảnh 2)
   const amountText = document.getElementById("modalAmountText");
   const totalText = document.getElementById("modalTotalText");
   if(amountText) amountText.innerText = money(total);
@@ -272,11 +308,9 @@ function openPayModal(){
 
   buildModalItems();
 
-  // ẩn dropdown mệnh giá (vì ảnh 2 không có)
   const amountSel = document.getElementById("cardAmountModal");
   if(amountSel) amountSel.style.display = "none";
 
-  // reset input + telco
   const seriEl = document.getElementById("cardSeriModal");
   const codeEl = document.getElementById("cardCodeModal");
   if(seriEl) seriEl.value = "";
@@ -311,14 +345,12 @@ function setupModalEvents(){
   if(openBtn) openBtn.addEventListener("click", openPayModal);
   if(closeBtn) closeBtn.addEventListener("click", closePayModal);
 
-  // click ra ngoài để đóng
   if(modal){
     modal.addEventListener("click", (e) => {
       if(e.target === modal) closePayModal();
     });
   }
 
-  // chọn nhà mạng
   if(grid){
     grid.addEventListener("click", (e) => {
       const btn = e.target.closest(".telcoBtn");
@@ -332,41 +364,85 @@ function setupModalEvents(){
     });
   }
 
-  // gõ seri/mã -> enable nút
   const seriEl = document.getElementById("cardSeriModal");
   const codeEl = document.getElementById("cardCodeModal");
   if(seriEl) seriEl.addEventListener("input", syncModalPayBtnState);
   if(codeEl) codeEl.addEventListener("input", syncModalPayBtnState);
 
-  // thanh toán trong modal
+  // ✅ THAY ALERT BẰNG GỬI TRUMTHE
   if(payBtn){
-    payBtn.addEventListener("click", () => {
+    payBtn.addEventListener("click", async () => {
       const u = document.getElementById("username")?.value.trim() || "";
-      if(!u){ alert("Bạn cần nhập username trước!"); return; }
-      if(total <= 0){ alert("Giỏ hàng đang trống!"); return; }
+      if(!u){ // ====== CALL NETLIFY FUNCTION THẬT ======
+(async () => {
+  const payBtn = document.getElementById("modalPayBtn");
+  try {
+    payBtn.disabled = true;
+    payBtn.textContent = "Đang xử lý...";
 
-      const seri = document.getElementById("cardSeriModal")?.value.trim() || "";
-      const code = document.getElementById("cardCodeModal")?.value.trim() || "";
-      const amount = total; // ✅ ảnh 2: mệnh giá = tổng đơn
+    const u = document.getElementById("username")?.value.trim() || "";
+    const seri = document.getElementById("cardSeriModal")?.value.trim() || "";
+    const code = document.getElementById("cardCodeModal")?.value.trim() || "";
 
-      if(!selectedTelco){ alert("Vui lòng chọn nhà mạng!"); return; }
-      if(!seri){ alert("Vui lòng nhập số seri!"); return; }
-      if(!code){ alert("Vui lòng nhập mã thẻ!"); return; }
+    const payload = {
+      telco: selectedTelco.toUpperCase(), // VIETTEL, MOBIFONE...
+      code,
+      serial: seri,
+      amount: total,                       // tổng đơn
+      request_id: `RBX_${Date.now()}`,      // id đơn của bạn
+      username: u,                         // nếu muốn lưu ở backend sau này
+      cart,                                // nếu muốn lưu chi tiết
+    };
 
-      if(!/^\d{6,20}$/.test(seri)){ alert("Seri không hợp lệ (chỉ số, 6–20 ký tự)."); return; }
-      if(!/^\d{6,20}$/.test(code)){ alert("Mã thẻ không hợp lệ (chỉ số, 6–20 ký tự)."); return; }
+    const res = await fetch("/.netlify/functions/trumthe-charge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      alert(
-        `Thanh toán thẻ cào (demo)\n` +
-        `Username: ${u}\n` +
-        `Nhà mạng: ${selectedTelco}\n` +
-        `Mệnh giá: ${money(amount)} VND\n` +
-        `Seri: ${seri}\n` +
-        `Mã thẻ: ${code}\n` +
-        `Tổng: ${money(total)} VND`
-      );
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
+    // ====== XỬ LÝ KẾT QUẢ TRẢ VỀ TỪ TRUMTHE ======
+    // Thường status: 1 (thành công), 99 (pending), 3 (sai thẻ), ...
+    if (data.status == 1) {
+      alert("✅ Nạp thẻ thành công!");
+      clearCart();
       closePayModal();
+      updateUI();
+    } else if (data.status == 99) {
+      alert("⏳ Thẻ đang chờ xử lý (pending). Hệ thống sẽ cập nhật sau.");
+      closePayModal();
+    } else {
+      alert(`❌ Nạp thẻ thất bại!\nMã: ${data.status}\n${data.message || ""}`);
+    }
+
+  } catch (err) {
+    alert("Lỗi gọi thanh toán: " + err.message);
+  } finally {
+    const payBtn = document.getElementById("modalPayBtn");
+    if (payBtn) {
+      payBtn.textContent = "Thanh toán ngay";
+      // bật lại nút dựa theo điều kiện
+      syncModalPayBtnState();
+    }
+  }
+})();
+
+          // bạn muốn thì clear cart sau khi gửi:
+          // clearCart();
+          return;
+        }
+
+        // lỗi
+        alert("Gửi thẻ thất bại: " + (data.message || "Unknown error"));
+      } catch (err) {
+        alert("Lỗi gọi thanh toán: " + err.message);
+      } finally {
+        payBtn.textContent = oldText;
+        syncModalPayBtnState(); // bật lại theo điều kiện
+      }
     });
   }
 }
