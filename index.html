@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VNGGAMES Shop - Roblox</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- BG -->
+  <div class="bg"></div>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-vng">VNG</span><span class="brand-games">GAMES</span>
+      <span class="brand-shop">Shop</span>
+    </div>
+
+    <div class="searchWrap">
+      <span class="searchIcon">⌕</span>
+      <input class="search" placeholder="Metal Slug: Awakening" />
+    </div>
+
+    <div class="topbarRight">
+      <button class="iconBtn" title="Apps">⋮⋮</button>
+      <div class="lang">🌐 <span>VN</span></div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="heroInner">
+      <div class="game">
+        <img src="assets/images/roblox-icon.jpg" class="gameIconImg" alt="Roblox">
+        <div class="gameTitle">Roblox - VNG</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <main class="layout">
+    <!-- LEFT + MID -->
+    <div class="leftMid">
+      <!-- LOGIN -->
+      <section class="card loginCard">
+  <div class="cardHeader">
+    <div class="cardTitle">1. Thông tin tài khoản</div>
+  </div>
+
+  <!-- VIEW: ACCOUNT INFO (ẩn lúc chưa login) -->
+  <div id="accountBox" class="accountBox" hidden>
+    <div class="accountRow">
+      <div class="accountLeft">
+        <div class="avatarWrap">
+  <img id="accountAvatar" class="accountAvatar" src="assets/images/default-avatar.png" alt="avatar">
+  <span class="avatarOnline" title="Online"></span>
+</div>
+        <div class="accountMeta">
+          <div id="accountName" class="accountName">username</div>
+          <div id="accountHandle" class="accountHandle">@username</div>
+        </div>
+      </div>
+
+      <button class="btnLogout" onclick="logout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- VIEW: LOGIN FORM (hiện lúc chưa login) -->
+  <div id="loginBox">
+    <div class="cardHeader" style="border-bottom:0; padding-top:0;">
+      <div class="cardTitle" style="font-size:14px; font-weight:700;">
+        1. Đăng nhập bằng tên tài khoản (username)
+      </div>
+      <a class="link" href="javascript:void(0)">Hướng dẫn tìm ID</a>
+    </div>
+
+    <div class="loginRow" style="padding-top:0;">
+      <div class="loginField">
+        <input id="username" class="input" placeholder="Tên tài khoản" />
+        <div id="usernameError" class="inputError" hidden>
+          Nhân vật không được tìm thấy trong khu vực này.
+          Vui lòng kiểm tra lại thông tin hoặc server tương ứng.
+        </div>
+      </div>
+
+      <button class="btnPrimary" onclick="login()">Xác nhận</button>
+    </div>
+  </div>
+</section>
+      <!-- PACKAGES -->
+      <section class="card packCard">
+        <div class="cardHeader">
+          <div class="cardTitle">2. Chọn gói</div>
+        </div>
+
+        <div class="sectionBadge">
+          <span class="badgeIcon">📦</span>
+          <span>Danh sách gói</span>
+        </div>
+
+        <div class="products" id="products"></div>
+      </section>
+    </div>
+
+    <!-- RIGHT -->
+    <aside class="card payCard">
+      <div class="cardHeader">
+        <div class="cardTitle">3. Thông tin đơn hàng</div>
+      </div>
+
+      <div class="orderEmpty" id="orderEmpty">Đơn hàng đang trống</div>
+
+      <div class="payHeader">
+        <div class="payTitle">Phương thức thanh toán</div>
+        <a class="link" href="javascript:void(0)">Xem tất cả ›</a>
+      </div>
+
+      <div class="payList">
+        <label class="payItem">
+          <span class="payLogo">🎫</span>
+          <span class="payName">Thẻ cào</span>
+          <input type="radio" name="pay" value="card" checked />
+        </label>
+
+        <label class="payItem">
+          <span class="payLogo logo-vietqr" aria-label="VietQR">
+            <span class="viet">Viet</span><span class="qr">QR</span><span class="tm">™</span>
+          </span>
+          <span class="payName">VietQR</span>
+          <input type="radio" name="pay" value="vietqr" />
+        </label>
+
+        <label class="payItem">
+          <span class="payLogo logo-zalopay" aria-label="ZaloPay">
+            <span class="zalo">Zalo</span><span class="pay">Pay</span>
+          </span>
+          <span class="payName">Ví ZaloPay</span>
+          <input type="radio" name="pay" value="zalopay" />
+        </label>
+      </div>
+
+      <div class="payDetail">
+        <div class="payDetailTitle">Chi tiết thanh toán</div>
+
+        <div class="lineBox">
+          <div class="lineRow">
+            <span class="muted">Tổng tiền:</span>
+            <span><b><span id="totalSmall">0</span> VND</b></span>
+          </div>
+        </div>
+
+        <div class="grand">
+          <div class="muted">Tổng thanh toán</div>
+          <div class="grandMoney"><span id="total">0</span> VND</div>
+        </div>
+
+        <div class="terms">
+          Bằng việc nhấn nút “Thanh toán ngay”, bạn đồng ý với các
+          <a class="link" href="javascript:void(0)">Điều khoản sử dụng</a> và
+          <a class="link" href="javascript:void(0)">Chính sách bảo mật</a>.
+        </div>
+
+        <!-- disabled mặc định -->
+        <button class="btnPay" id="openPayModalBtn" disabled>Thanh toán ngay</button>
+        <button class="btnGhost" onclick="clearCart()">Xoá giỏ</button>
+      </div>
+
+      <div class="cart" id="cart"></div>
+    </aside>
+  </main>
+
+  <!-- ============= MODAL THANH TOÁN ============= -->
+  <div class="modalOverlay" id="payModal" hidden>
+    <div class="modalBox">
+      <div class="modalHead">
+        <div class="modalTitle">Thanh toán</div>
+        <button class="modalClose" id="closePayModalBtn">×</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="modalItems" id="modalItems"></div>
+
+        <div class="modalDivider"></div>
+
+        <div class="modalRowTitle">
+          <div class="modalSectionTitle">Phương thức thanh toán</div>
+          <a class="link" href="javascript:void(0)">Xem tất cả ›</a>
+        </div>
+
+        <div class="telcoGrid" id="telcoGrid">
+          <button class="telcoBtn" data-telco="Viettel">viettel</button>
+          <button class="telcoBtn" data-telco="Mobifone">mobifone</button>
+          <button class="telcoBtn" data-telco="Vinaphone">vinaphone</button>
+          <button class="telcoBtn" data-telco="Zing">Zing</button>
+        </div>
+
+        <select id="cardAmountModal" class="input modalInput">
+          <option value="">-- Chọn mệnh giá --</option>
+          <option value="10000">10.000</option>
+          <option value="20000">20.000</option>
+          <option value="50000">50.000</option>
+          <option value="100000">100.000</option>
+          <option value="200000">200.000</option>
+          <option value="500000">500.000</option>
+        </select>
+
+        <input id="cardSeriModal" class="input modalInput" placeholder="Điền số seri in trên thẻ cào" inputmode="numeric" autocomplete="off">
+        <input id="cardCodeModal" class="input modalInput" placeholder="Điền mã thẻ cào in dưới lớp giấy bạc" inputmode="numeric" autocomplete="off">
+
+        <div class="modalDivider"></div>
+
+        <div class="modalSectionTitle">Chi tiết thanh toán</div>
+
+        <div class="lineBox">
+          <div class="lineRow">
+            <span class="muted">Mệnh giá thẻ cào:</span>
+            <span><b><span id="modalAmountText">0</span> VND</b></span>
+          </div>
+        </div>
+
+        <div class="grand" style="margin-top:12px;">
+          <div class="muted">Tổng thanh toán</div>
+          <div class="grandMoney"><span id="modalTotalText">0</span> VND</div>
+        </div>
+
+        <div class="terms">
+          Bằng việc nhấn nút “Thanh toán ngay”, bạn đồng ý và tuân thủ
+          <a class="link" href="javascript:void(0)">Điều khoản sử dụng</a> và
+          <a class="link" href="javascript:void(0)">Chính sách bảo mật</a>.
+        </div>
+
+        <button class="btnPrimary" id="modalPayBtn" style="width:100%" disabled>Thanh toán ngay</button>
+      </div>
+    </div>
+  </div>
+  <!-- ============= END MODAL ============= -->
+
+  <!-- ===== LOGIN LOADING OVERLAY (ĐÃ THÊM) ===== -->
+  <div id="loginLoading" class="loadingOverlay" hidden>
+    <div class="loadingBall">
+      <div class="loadingText">
+        <div class="loadingBrand">VNG<br><span>GAMES</span></div>
+        <div class="loadingSub">Loading</div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== END LOGIN LOADING OVERLAY ===== -->
+
+  <script src="app.js"></script>
+
+  <footer class="footer">
+    <!-- footer giữ nguyên như bạn -->
+  </footer>
+</body>
+</html>

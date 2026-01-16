@@ -1,0 +1,1059 @@
+:root{
+  --orange:#ff6a00;
+  --orange2:#ff8a00;
+  --text:#222;
+  --muted:#777;
+  --card:#ffffff;
+  --border:#ececec;
+  --shadow: 0 10px 28px rgba(0,0,0,.14);
+}
+
+*{
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 
+               "Segoe UI", Roboto, Helvetica, Arial, 
+               "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+
+/* Background like screenshot */
+.bg{
+  position: fixed;
+  inset: 0;
+  background: url("assets/images/bg.jpg") center / cover no-repeat;
+  filter: blur(2px);
+  transform: scale(1.03);
+  z-index: -2;
+}
+.bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.25)
+  );
+}
+
+/* Top bar */
+.topbar{
+  height:56px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:0 18px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+.brand{ font-weight:900; font-size:22px; display:flex; align-items:baseline; gap:2px; }
+.brand-vng{ color:var(--orange); }
+.brand-games{ color:#222; }
+.brand-shop{ color:#777; font-weight:700; margin-left:6px; font-size:18px; }
+
+.searchWrap{
+  flex:1;
+  max-width:520px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#f3f3f3;
+  border-radius:8px;
+  padding:0 10px;
+  border:1px solid #eee;
+}
+.searchIcon{ color:#666; }
+.search{
+  border:0; outline:0;
+  background:transparent;
+  width:100%;
+  font-size:14px;
+}
+
+.topbarRight{ display:flex; align-items:center; gap:14px; }
+.iconBtn{
+  border:0; background:transparent; cursor:pointer;
+  font-size:18px; color:#666;
+}
+.lang{ color:#666; font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; }
+
+/* Hero strip */
+.hero{
+  height:120px;
+  display:flex;
+  align-items:center;
+}
+.heroInner{
+  width:min(1180px, calc(100% - 36px));
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.game{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.gameIconImg{
+  width:72px;
+  height:72px;
+  border-radius:14px;
+  object-fit:cover;
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+}
+
+.gameTitle{
+  font-size:28px;
+  font-weight:900;
+  color:#111;
+}
+
+/* Layout */
+.layout{
+  width:min(1180px, calc(100% - 36px));
+  margin: 0 auto 28px;
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap:18px;
+}
+.leftMid{ display:flex; flex-direction:column; gap:18px; }
+
+/* Cards */
+.card{
+  background: rgba(255,255,255,.95);
+  border-radius:12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,.45);
+}
+.cardHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.cardTitle,
+.box h4,
+.payTitle{
+  font-weight: 600;
+  font-size: 16px;
+  color: #222;
+}
+.link{
+  color:#1a73e8;
+  text-decoration:none;
+  font-weight:700;
+  font-size:13px;
+}
+.link:hover{ text-decoration:underline; }
+
+/* Login row like screenshot (wide input + centered button) */
+.loginCard{ padding-bottom:16px; }
+.loginRow{
+  padding:14px 16px 0;
+  display:grid;
+  grid-template-columns: 1fr 220px;
+  gap:12px;
+  align-items:center;
+}
+.input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  outline:none;
+  background:#fff;
+}
+.btnPrimary{
+  padding:12px 14px;
+  border-radius:8px;
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  color:#fff;
+  background: linear-gradient(#ff8a00, #ff5a00);
+  box-shadow: 0 8px 18px rgba(255,106,0,.25);
+}
+
+/* Packages section */
+.packCard{ overflow:hidden; }
+.sectionBadge{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 16px 6px;
+  color: var(--orange);
+  font-weight:900;
+}
+.badgeIcon{ filter:saturate(1.2); }
+
+.products{
+  padding: 10px 16px 16px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:14px;
+}
+
+.product{
+  background:#fff;
+  border:1px solid #eee;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+}
+.productTop{
+  position:relative;
+}
+.product img{
+  width:100%;
+  height:110px;
+  object-fit:cover;
+  display:block;
+}
+.productChip{
+  position:absolute;
+  left:10px; top:10px;
+  background: rgba(255,255,255,.9);
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;
+  padding:4px 8px;
+  font-weight:900;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.chipDot{
+  width:16px; height:16px;
+  border-radius:999px;
+  background:#111;
+  display:inline-block;
+}
+
+.productBody{
+  padding:10px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+}
+.productName{
+  font-weight:900;
+  font-size:14px;
+}
+.productPrice{
+  margin-top:6px;
+  color:var(--orange);
+  font-weight:900;
+  font-size:13px;
+}
+.btnAdd{
+  width:34px; height:34px;
+  border-radius:8px;
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  color:#fff;
+  background: var(--orange);
+  box-shadow: 0 8px 16px rgba(255,106,0,.25);
+}
+
+/* Pay card */
+.payCard{ padding-bottom:14px; }
+.orderEmpty{
+  text-align:center;
+  color:#888;
+  font-style:italic;
+  padding:10px 16px 0;
+}
+
+.payHeader{
+  padding: 12px 16px 6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.payTitle{ font-weight:900; }
+
+.payList{
+  padding: 0 16px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.payItem{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid #eee;
+  background:#fff;
+  border-radius:10px;
+  padding:10px 10px;
+}
+.payItem input{ margin-left:auto; }
+.payLogo{
+  width:28px; height:28px;
+  border-radius:8px;
+  background:#f3f3f3;
+  display:grid; place-items:center;
+  font-weight:900;
+  color:#333;
+}
+.payLogo.vietqr{ color:#d0021b; background:#fff4f4; border:1px solid #ffd6d6; }
+.payLogo.zalopay{ color:#0b57d0; background:#eef4ff; border:1px solid #d8e6ff; }
+.payName{ font-weight:800; color:#444; }
+
+.payDetail{
+  padding: 8px 16px 0;
+}
+.payDetailTitle{
+  font-weight:900;
+  margin: 6px 0 10px;
+}
+.lineBox{
+  background:#fafafa;
+  border:1px solid #eee;
+  border-radius:10px;
+  padding:10px 12px;
+}
+.lineRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:13px;
+}
+.muted{ color:var(--muted); }
+
+.grand{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  margin: 12px 0 8px;
+}
+.grandMoney{
+  color:var(--orange);
+  font-weight:900;
+  font-size:18px;
+}
+
+.terms{
+  font-size:12px;
+  color:#777;
+  line-height:1.35;
+  margin: 8px 0 10px;
+}
+
+.btnPay{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  color:#fff;
+  background: #cfcfcf;
+}
+.btnPay.enabled{
+  background: linear-gradient(#ff8a00, #ff5a00);
+  box-shadow: 0 10px 20px rgba(255,106,0,.22);
+}
+
+.btnGhost{
+  width:100%;
+  margin-top:8px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #eee;
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
+  color:#666;
+}
+
+/* Cart list in pay card */
+.cart{
+  padding: 10px 16px 0;
+}
+.cartItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:#fff;
+  border:1px solid #eee;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+}
+.cartLeft{ display:flex; flex-direction:column; }
+.cartName{ font-weight:900; font-size:13px; }
+.cartSub{ color:#777; font-size:12px; margin-top:2px; }
+.cartBtn{
+  width:30px; height:30px;
+  border-radius:8px;
+  border:1px solid #eee;
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
+}
+
+/* Responsive */
+@media (max-width: 1100px){
+  .layout{ grid-template-columns: 1fr; }
+}
+@media (max-width: 760px){
+  .products{ grid-template-columns: repeat(2, 1fr); }
+  .loginRow{ grid-template-columns: 1fr; }
+}
+@media (max-width: 480px){
+  .products{ grid-template-columns: 1fr; }
+}
+.footer{
+  margin-top: 26px;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+.footerInner{
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 28px 0;
+}
+
+.footerTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 28px;
+}
+
+.footerBrand{
+  font-weight:900;
+  font-size:22px;
+  letter-spacing:.2px;
+  white-space: nowrap;
+}
+.footerBrand .brandVNG{ color:#ff6a00; }
+.footerBrand .brandGAMES{ color:#fff; }
+.footerBrand .brandShop{ color:#9a9a9a; font-weight:700; margin-left:6px; font-size:18px; }
+
+.footerCols{
+  display:flex;
+  gap: 60px;
+}
+
+.footerTitle{
+  color:#bdbdbd;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.footerLink{
+  display:block;
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.9;
+}
+.footerLink:hover{ text-decoration: underline; }
+
+.footerDivider{
+  height:1px;
+  background: rgba(255,255,255,.12);
+  margin: 22px 0 18px;
+}
+
+.footerBottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 14px;
+}
+
+.footerCopy{
+  color:#d7d7d7;
+  font-size:13px;
+}
+
+.footerBottomLinks{
+  display:flex;
+  gap: 36px;
+}
+
+.footerLink2{
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:800;
+}
+.footerLink2:hover{ text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 820px){
+  .footerTop{ flex-direction: column; }
+  .footerCols{ gap: 30px; flex-wrap: wrap; }
+  .footerBottom{ flex-direction: column; align-items:flex-start; }
+  .footerBottomLinks{ gap: 18px; }
+}
+html, body{
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+/* =========================
+   FONT + WEIGHT PATCH (VNG-like)
+   DÁN Ở CUỐI FILE style.css
+   ========================= */
+
+/* Text mặc định */
+body{
+  font-weight: 400;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Header brand bớt đậm (đỡ nhoè) */
+.brand{ font-weight: 800; }
+
+/* Tiêu đề trong card: vừa phải, không bệt */
+.cardTitle{ font-weight: 600; }
+.payTitle{ font-weight: 600; }
+
+/* Link nhẹ hơn chút */
+.link{ font-weight: 600; }
+
+/* Nút: đậm vừa, không 900 */
+.btnPrimary,
+.btnAdd,
+.btnPay,
+.btnGhost,
+.cartBtn{
+  font-weight: 600 !important;
+}
+
+/* Danh sách gói: bớt đậm */
+.sectionBadge{
+  font-weight: 600 !important;
+}
+
+/* Chip số 400/800... bớt đậm */
+.productChip{
+  font-weight: 600 !important;
+}
+
+/* Tên gói + giá: vừa phải như ảnh bạn muốn */
+.productName{
+  font-weight: 600 !important;
+  color: #222;
+}
+.productPrice{
+  font-weight: 600 !important;
+}
+
+/* Phương thức thanh toán: bớt đậm */
+.payName{
+  font-weight: 600 !important;
+}
+
+/* Chi tiết thanh toán */
+.payDetailTitle{
+  font-weight: 600 !important;
+}
+
+/* Tổng thanh toán: nổi nhưng không quá gắt */
+.grandMoney{
+  font-weight: 700 !important;
+}
+
+/* Cart */
+.cartName{ font-weight: 600 !important; }
+
+/* Footer chữ link bớt đậm */
+.footerLink2{ font-weight: 700 !important; }
+
+/* Card trắng "đặc" hơn để chữ rõ hơn */
+.card{
+  background: rgba(255,255,255,0.97);
+}
+/* =========================
+   VNG-like font tuning (Inter)
+   DÁN CUỐI FILE style.css
+   ========================= */
+
+:root{
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+*{
+  font-family: var(--font) !important;
+}
+
+html, body{
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+body{
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.1px; /* giống kiểu VNG: gọn hơn */
+}
+
+/* Title/heading giống mẫu (không quá đậm) */
+.cardTitle,
+.payTitle{
+  font-weight: 700 !important;
+  letter-spacing: -0.2px;
+}
+
+/* Text thường */
+.payName,
+.productName,
+.lineRow,
+.terms,
+.input{
+  font-weight: 500 !important;
+  letter-spacing: -0.1px;
+}
+
+/* Giá tiền + tổng tiền (nổi nhưng không bệt) */
+.productPrice{
+  font-weight: 600 !important;
+}
+.grandMoney{
+  font-weight: 700 !important;
+}
+
+/* Button chữ gọn như mẫu */
+.btnPrimary,
+.btnAdd,
+.btnPay,
+.btnGhost{
+  font-weight: 600 !important;
+  letter-spacing: 0px;
+}
+
+/* Header brand */
+.brand{
+  letter-spacing: -0.3px;
+}
+.cardForm{
+  padding: 0 16px 10px;
+}
+.cardForm .input{
+  margin-top: 10px;
+}
+.cardForm select.input{
+  appearance: none;
+  background: #fff;
+}
+/* =========================
+   PAYMENT MODAL (FIXED)
+   ========================= */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 99999;
+  display: none;          /* mặc định ẩn */
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.modalOverlay.show{
+  display: flex;          /* hiện modal */
+}
+
+.modalBox{
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 55px rgba(0,0,0,.35);
+  overflow: hidden;
+  max-height: calc(100vh - 36px); /* không vượt màn hình */
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  flex: 0 0 auto;
+}
+
+.modalTitle{ font-weight: 700; font-size: 16px; }
+.modalClose{
+  width: 32px; height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #f2f2f2;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  color: #444;
+}
+
+.modalBody{
+  padding: 14px 16px 16px;
+  overflow: auto;         /* scroll trong modal */
+  flex: 1 1 auto;
+}
+
+/* item list trong modal */
+.modalItems{ display:flex; flex-direction:column; gap:10px; }
+.modalItem{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.modalItemImg{
+  width: 56px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+.modalItemInfo{ flex:1; }
+.modalItemName{ font-weight: 700; color:#222; }
+.modalItemPrice{ margin-top:4px; color: var(--orange); font-weight: 700; }
+.modalItemQty{
+  background:#f2f2f2;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-weight: 700;
+  color:#666;
+  font-size: 12px;
+}
+
+.modalDivider{
+  height: 1px;
+  background: #eee;
+  margin: 14px 0;
+}
+
+.modalRowTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 10px;
+}
+
+.modalSectionTitle{ font-weight: 700; }
+
+/* telco grid */
+.telcoGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.telcoBtn{
+  border: 1px solid #eee;
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 10px;
+  cursor: pointer;
+  font-weight: 800;
+  color:#333;
+  text-transform: lowercase;
+}
+
+.telcoBtn.active{
+  border-color: var(--orange);
+  box-shadow: 0 10px 22px rgba(255,106,0,.18);
+}
+
+.modalInput{ margin-top: 10px; }
+
+/* Khi modal mở thì chặn scroll nền */
+body.modalOpen{
+  overflow: hidden;
+}
+/* =========================
+   TEXT LOGO FIX (no duplicate)
+   ========================= */
+
+/* payLogo dùng cho logo chữ: không nền, không khung */
+.payLogo.logo-vietqr,
+.payLogo.logo-zalopay{
+  background: transparent !important;
+  border: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: -0.2px;
+  line-height: 1;
+}
+
+/* VietQR: Viet đỏ + QR xanh + ™ nhỏ */
+.logo-vietqr .viet{ color: #e53935; }
+.logo-vietqr .qr{ color: #1a73e8; margin-left: 1px; }
+.logo-vietqr .tm{
+  font-size: 10px;
+  color: #9a9a9a;
+  margin-left: 2px;
+  transform: translateY(-4px);
+}
+
+/* ZaloPay: xanh, Pay đậm hơn */
+.logo-zalopay{ color: #0068ff; }
+.logo-zalopay .zalo{ font-weight: 800; }
+.logo-zalopay .pay{ font-weight: 900; margin-left: 1px; }
+/* =========================
+   INPUT ERROR (LOGIN)
+   ========================= */
+
+.loginField{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* trạng thái lỗi cho input */
+.input.is-error{
+  border-color: #ff3b30 !important;
+  background: #fff5f5 !important;
+}
+
+/* dòng chữ lỗi */
+.inputError{
+  font-size: 12px;
+  color: #ff3b30;
+  line-height: 1.35;
+}
+/* =========================
+   LOADING XOAY XOAY (VNG STYLE)
+   ========================= */
+
+.loadingOverlay{
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+}
+
+.loadingOverlay[hidden]{
+  display: none !important;
+}
+
+/* vòng tròn chính */
+.loadingBall{
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: #e58d10;
+  position: relative;
+  display: grid;
+  place-items: center;
+  animation: spinSlow 2.2s linear infinite;
+}
+
+/* vòng bóng lệch phía sau */
+.loadingBall::after{
+  content:"";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(229,141,16,.45);
+  transform: translate(-14px, 14px);
+  z-index: -1;
+}
+
+/* xoay tròn nhẹ */
+@keyframes spinSlow{
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
+}
+
+/* chữ ở giữa KHÔNG xoay */
+.loadingText{
+  position: absolute;
+  text-align: center;
+  color: #fff;
+  transform: rotate(0deg);
+}
+
+.loadingBrand{
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: -0.6px;
+  line-height: .95;
+}
+
+.loadingBrand span{
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.loadingSub{
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: .95;
+}
+.loadingOverlay{
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+}
+
+.loadingOverlay[hidden]{
+  display: none !important;
+}
+
+.loadingBall{
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: #e58d10;
+  position: relative;
+  display: grid;
+  place-items: center;
+  animation: spinSlow 2.2s linear infinite;
+}
+
+.loadingBall::after{
+  content:"";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(229,141,16,.45);
+  transform: translate(-14px, 14px);
+  z-index: -1;
+}
+
+@keyframes spinSlow{
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
+}
+
+.loadingText{
+  position: absolute;
+  text-align: center;
+  color: #fff;
+}
+
+.loadingBrand{
+  font-weight: 900;
+  font-size: 34px;
+  line-height: .95;
+}
+
+.loadingBrand span{
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.loadingSub{
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+/* =========================
+   ACCOUNT INFO (after login)
+   ========================= */
+.accountBox{
+  padding: 14px 16px 16px;
+}
+
+.accountRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.accountLeft{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.accountAvatar{
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+
+.accountMeta{ min-width: 0; }
+.accountName{
+  font-weight: 800;
+  font-size: 16px;
+  color: #222;
+}
+.accountHandle{
+  margin-top: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #888;
+}
+
+.btnLogout{
+  border: 0;
+  background: linear-gradient(#ff8a00, #ff5a00);
+  color: #fff;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(255,106,0,.20);
+}
+/* =========================
+   AVATAR + ONLINE DOT
+   ========================= */
+
+.avatarWrap{
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+}
+
+.accountAvatar{
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #fff;
+  border: 1px solid #e7e7e7;   /* viền xám nhạt */
+}
+
+/* chấm xanh góc phải dưới */
+.avatarOnline{
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #16c172;         /* xanh online */
+  border: 2px solid #fff;      /* viền trắng như hình */
+  box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
