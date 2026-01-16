@@ -1,79 +1,64 @@
-import crypto from "crypto";
+// netlify/functions/trumthe-charge.js
+const crypto = require("crypto");
 
-function md5(str) {
-  return crypto.createHash("md5").update(str, "utf8").digest("hex");
-}
-
-export async function handler(event) {
+exports.handler = async (event) => {
+  // Test nhanh trên trình duyệt:
+  // https://<site>.netlify.app/.netlify/functions/trumthe-charge?ping=1
   if (event.httpMethod === "GET") {
-    return { statusCode: 200, body: "ok" };
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      body: "ok",
+    };
   }
 
+  // Chỉ cho POST
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  // ... phần xử lý POST ở đây
-}
-
   try {
-    const {
-      telco,     // VIETTEL | MOBIFONE | VINAPHONE | ZING ...
-      code,      // mã thẻ
-      serial,    // seri
-      amount,    // mệnh giá
-      request_id // mã đơn của bạn tự tạo
-    } = JSON.parse(event.body || "{}");
+    const body = JSON.parse(event.body || "{}");
 
-    if (!telco || !code || !serial || !amount || !request_id) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing fields" }) };
-    }
+    // ví dụ body bạn gửi lên:
+    // { telco, code, serial, amount, request_id }
+    const { telco, code, serial, amount, request_id } = body;
 
-    // LẤY TỪ ENV (KHÔNG ĐỂ TRONG FRONTEND)
-    const DOMAIN_POST = process.env.TRUMTHE_DOMAIN_POST; // vd: https://trumthe.vn (hoặc domain họ đưa)
-    const PARTNER_ID = process.env.TRUMTHE_PARTNER_ID;
-    const PARTNER_KEY = process.env.TRUMTHE_PARTNER_KEY;
+    // TODO: lấy key thật của bạn từ ENV trên Netlify
+    const partner_key = process.env.TRUMTHE_PARTNER_KEY;
+    const partner_id = process.env.TRUMTHE_PARTNER_ID;
+    const domain_post = process.env.TRUMTHE_DOMAIN_POST; // ví dụ: https://xxx.trumthe.vn
 
-    if (!DOMAIN_POST || !PARTNER_ID || !PARTNER_KEY) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Missing server env" }) };
-    }
+    const sign = crypto
+      .createHash("md5")
+      .update(String(partner_key) + String(code) + String(serial))
+      .digest("hex");
 
-    const sign = md5(PARTNER_KEY + code + serial);
-
-    // TrumThe yêu cầu body form-data, nhưng họ cũng ghi content-type application/json ở docs.
-    // Cách an toàn: gửi dạng x-www-form-urlencoded (thường API dạng form-data đều nhận)
-    const body = new URLSearchParams({
+    const payload = {
       telco,
       code,
       serial,
-      amount: String(amount),
-      request_id: String(request_id),
-      partner_id: String(PARTNER_ID),
+      amount,
+      request_id,
+      partner_id,
       sign,
       command: "charging",
-    });
+    };
 
-    const res = await fetch(`${DOMAIN_POST}/chargingws/v2`, {
+    const res = await fetch(`${domain_post}/chargingws/v2`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-      },
-      body,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     const text = await res.text();
-    // có thể là JSON hoặc text → thử parse
-    let data;
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        ok: true,
-        trumthe_response: data,
-      }),
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: text,
     };
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    return { statusCode: 500, body: "Server error: " + e.message };
   }
-}
+};
