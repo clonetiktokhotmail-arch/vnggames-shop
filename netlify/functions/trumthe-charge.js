@@ -5,10 +5,16 @@ function md5(str) {
 }
 
 export async function handler(event) {
-  // Chỉ cho POST
+  if (event.httpMethod === "GET") {
+    return { statusCode: 200, body: "ok" };
+  }
+
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
+
+  // ... phần xử lý POST ở đây
+}
 
   try {
     const {
