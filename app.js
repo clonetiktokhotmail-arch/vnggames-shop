@@ -1,7 +1,9 @@
+/* =======================
+   STATE
+   ======================= */
 let total = 0;
 let loggedIn = false;
 
-// Ảnh bạn có: 400.jpg, 800.jpg... 8000.jpg
 const products = [
   { id: "400",  label: "400",  name: "Gói 400 Robux",  price: 50000,   img: "assets/images/400.jpg" },
   { id: "800",  label: "800",  name: "Gói 800 Robux",  price: 100000,  img: "assets/images/800.jpg" },
@@ -11,8 +13,8 @@ const products = [
   { id: "8000", label: "8000", name: "Gói 8000 Robux", price: 1000000, img: "assets/images/8000.jpg" },
 ];
 
-const cart = {};
-let selectedTelco = "";
+const cart = {};         // { [id]: {name, price, qty} }
+let selectedTelco = "";  // VIETTEL / MOBIFONE / VINAPHONE / ZING...
 
 function money(n){ return Number(n || 0).toLocaleString("vi-VN"); }
 
@@ -20,24 +22,63 @@ function money(n){ return Number(n || 0).toLocaleString("vi-VN"); }
    HELPERS
    ======================= */
 function genRequestId(){
-  // request_id nên unique để TrumThe không bị trùng
-  return "REQ" + Date.now() + Math.floor(Math.random() * 1000);
+  return "REQ_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+}
+
+function getUsername(){
+  return (document.getElementById("username")?.value || "").trim();
 }
 
 function getSingleCartItem(){
-  const items = Object.entries(cart); // [ [id, {name, price, qty}], ... ]
+  const items = Object.entries(cart);
   if(items.length !== 1) return null;
   const [id, item] = items[0];
   if(item.qty !== 1) return null;
   return { id, ...item };
 }
 
-async function callTrumtheCharge({ telco, code, serial, amount, request_id }){
-  // Gọi netlify function cùng domain (an toàn, khỏi lo domain)
-  const res = await fetch("/.netlify/functions/trumthe-charge", {
+// ✅ ZING: cho phép chữ IN HOA + số. Nhà mạng khác: chỉ số
+function isValidCardField(telco, value){
+  const v = (value || "").trim();
+
+  if ((telco || "").toUpperCase() === "ZING") {
+    return /^[A-Z0-9]{6,20}$/.test(v);
+  }
+  return /^\d{6,20}$/.test(v);
+}
+
+// ✅ DỨT ĐIỂM: lọc input theo telco (ZING: A-Z0-9, còn lại: chỉ số)
+function normalizeCardInput(){
+  const seriEl = document.getElementById("cardSeriModal");
+  const codeEl = document.getElementById("cardCodeModal");
+  if(!seriEl || !codeEl) return;
+
+  const telco = (selectedTelco || "").toUpperCase();
+
+  if(telco === "ZING"){
+    seriEl.value = (seriEl.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    codeEl.value = (codeEl.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  } else {
+    seriEl.value = (seriEl.value || "").replace(/\D/g, "");
+    codeEl.value = (codeEl.value || "").replace(/\D/g, "");
+  }
+}
+
+/**
+ * Gọi backend của bạn để xử lý thanh toán.
+ * Front-end KHÔNG gọi thẳng provider, và KHÔNG chứa API key.
+ *
+ * Backend bạn tự làm: /.netlify/functions/checkout
+ * Trả về JSON dạng:
+ *  - { status: "success", message?: "" }
+ *  - { status: "pending", message?: "" }
+ *  - { status: "failed", message?: "" }
+ */
+async function callBackendCheckout(payload){
+  const res = await fetch("/.netlify/functions/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ telco, code, serial, amount, request_id })
+    body: JSON.stringify(payload)
   });
 
   const text = await res.text();
@@ -105,7 +146,9 @@ function logout(){
 function login(){
   const input = document.getElementById("username");
   const error = document.getElementById("usernameError");
-  const u = input.value.trim();
+  const u = (input?.value || "").trim();
+
+  if(!input) return;
 
   input.classList.remove("is-error");
   if(error) error.hidden = true;
@@ -138,7 +181,7 @@ function login(){
     setLoggedInUI(u);
     renderProducts();
     updateUI();
-  }, 1500);
+  }, 800);
 }
 
 /* =======================
@@ -153,7 +196,7 @@ function renderProducts(){
     const disabledAttr = loggedIn ? "" : "disabled";
     const disabledClass = loggedIn ? "" : " disabled";
 
-    el.innerHTML += `
+    el.insertAdjacentHTML("beforeend", `
       <div class="product">
         <div class="productTop">
           <img src="${p.img}" alt="${p.name}">
@@ -167,7 +210,7 @@ function renderProducts(){
           <button class="btnAdd${disabledClass}" ${disabledAttr} onclick="addToCart('${p.id}')">+</button>
         </div>
       </div>
-    `;
+    `);
   });
 }
 
@@ -281,13 +324,15 @@ function syncModalPayBtnState(){
   const payBtn = document.getElementById("modalPayBtn");
   if(!payBtn) return;
 
-  const seri = document.getElementById("cardSeriModal")?.value.trim() || "";
-  const code = document.getElementById("cardCodeModal")?.value.trim() || "";
+  const seriEl = document.getElementById("cardSeriModal");
+  const codeEl = document.getElementById("cardCodeModal");
+  const seri = (seriEl?.value || "").trim();
+  const code = (codeEl?.value || "").trim();
 
   const ok =
     !!selectedTelco &&
-    /^\d{6,20}$/.test(seri) &&
-    /^\d{6,20}$/.test(code) &&
+    isValidCardField(selectedTelco, seri) &&
+    isValidCardField(selectedTelco, code) &&
     total > 0 &&
     loggedIn;
 
@@ -356,98 +401,99 @@ function setupModalEvents(){
       const btn = e.target.closest(".telcoBtn");
       if(!btn) return;
 
-      selectedTelco = btn.dataset.telco || "";
+      selectedTelco = (btn.dataset.telco || "").toUpperCase();
       grid.querySelectorAll(".telcoBtn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
+      // ✅ quan trọng: chọn telco xong là normalize luôn
+      normalizeCardInput();
       syncModalPayBtnState();
     });
   }
 
   const seriEl = document.getElementById("cardSeriModal");
   const codeEl = document.getElementById("cardCodeModal");
-  if(seriEl) seriEl.addEventListener("input", syncModalPayBtnState);
-  if(codeEl) codeEl.addEventListener("input", syncModalPayBtnState);
 
-  // ✅ THAY ALERT BẰNG GỬI TRUMTHE
+  // ✅ input: luôn normalize theo telco hiện tại
+  if(seriEl) seriEl.addEventListener("input", () => {
+    normalizeCardInput();
+    syncModalPayBtnState();
+  });
+
+  if(codeEl) codeEl.addEventListener("input", () => {
+    normalizeCardInput();
+    syncModalPayBtnState();
+  });
+
   if(payBtn){
     payBtn.addEventListener("click", async () => {
-      const u = document.getElementById("username")?.value.trim() || "";
-      if(!u){ // ====== CALL NETLIFY FUNCTION THẬT ======
-(async () => {
-  const payBtn = document.getElementById("modalPayBtn");
-  try {
-    payBtn.disabled = true;
-    payBtn.textContent = "Đang xử lý...";
+      const oldText = payBtn.textContent;
 
-    const u = document.getElementById("username")?.value.trim() || "";
-    const seri = document.getElementById("cardSeriModal")?.value.trim() || "";
-    const code = document.getElementById("cardCodeModal")?.value.trim() || "";
+      try {
+        const u = getUsername();
+        if(!u){ alert("Bạn cần đăng nhập trước!"); return; }
 
-    const payload = {
-      telco: selectedTelco.toUpperCase(), // VIETTEL, MOBIFONE...
-      code,
-      serial: seri,
-      amount: total,                       // tổng đơn
-      request_id: `RBX_${Date.now()}`,      // id đơn của bạn
-      username: u,                         // nếu muốn lưu ở backend sau này
-      cart,                                // nếu muốn lưu chi tiết
-    };
+        // ✅ lấy lại sau khi normalize để chắc chắn
+        normalizeCardInput();
+        const seri = (document.getElementById("cardSeriModal")?.value || "").trim();
+        const code = (document.getElementById("cardCodeModal")?.value || "").trim();
 
-    const res = await fetch("/.netlify/functions/trumthe-charge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+        if(!selectedTelco){ alert("Vui lòng chọn nhà mạng!"); return; }
+        if(!isValidCardField(selectedTelco, seri)){ alert("Số seri không hợp lệ!"); return; }
+        if(!isValidCardField(selectedTelco, code)){ alert("Mã thẻ không hợp lệ!"); return; }
+        if(!(total > 0 && loggedIn)){ alert("Đơn hàng đang trống hoặc chưa đăng nhập!"); return; }
 
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+        payBtn.disabled = true;
+        payBtn.textContent = "Đang xử lý...";
 
-    // ====== XỬ LÝ KẾT QUẢ TRẢ VỀ TỪ TRUMTHE ======
-    // Thường status: 1 (thành công), 99 (pending), 3 (sai thẻ), ...
-    if (data.status == 1) {
-      alert("✅ Nạp thẻ thành công!");
-      clearCart();
-      closePayModal();
-      updateUI();
-    } else if (data.status == 99) {
-      alert("⏳ Thẻ đang chờ xử lý (pending). Hệ thống sẽ cập nhật sau.");
-      closePayModal();
-    } else {
-      alert(`❌ Nạp thẻ thất bại!\nMã: ${data.status}\n${data.message || ""}`);
-    }
+        const payload = {
+          request_id: genRequestId(),
+          username: u,
+          telco: selectedTelco,
+          card: { serial: seri, code },
+          cart,
+          amount: total
+        };
 
-  } catch (err) {
-    alert("Lỗi gọi thanh toán: " + err.message);
-  } finally {
-    const payBtn = document.getElementById("modalPayBtn");
-    if (payBtn) {
-      payBtn.textContent = "Thanh toán ngay";
-      // bật lại nút dựa theo điều kiện
-      syncModalPayBtnState();
-    }
-  }
-})();
+        const data = await callBackendCheckout(payload);
 
-          // bạn muốn thì clear cart sau khi gửi:
-          // clearCart();
+        if(data.status === "success"){
+          alert("✅ Thanh toán thành công!");
+          clearCart();
+          closePayModal();
+          updateUI();
           return;
         }
 
-        // lỗi
-        alert("Gửi thẻ thất bại: " + (data.message || "Unknown error"));
+        if(data.status === "pending"){
+          alert("⏳ Đang chờ xử lý. Vui lòng kiểm tra lại sau.");
+          closePayModal();
+          return;
+        }
+
+        alert("❌ Thanh toán thất bại: " + (data.message || "Unknown error"));
       } catch (err) {
-        alert("Lỗi gọi thanh toán: " + err.message);
+        alert("Lỗi gọi thanh toán: " + (err?.message || err));
       } finally {
         payBtn.textContent = oldText;
-        syncModalPayBtnState(); // bật lại theo điều kiện
+        syncModalPayBtnState();
       }
     });
   }
 }
 
-/* init */
-renderProducts();
-updateUI();
-setupModalEvents();
+/* =======================
+   INIT
+   ======================= */
+document.addEventListener("DOMContentLoaded", () => {
+  renderProducts();
+  updateUI();
+  setupModalEvents();
+});
+
+/* Expose functions to window for inline onclick */
+window.login = login;
+window.logout = logout;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.clearCart = clearCart;
