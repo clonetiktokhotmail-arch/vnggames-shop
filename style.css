@@ -1057,3 +1057,85 @@ body.modalOpen{
   border: 2px solid #fff;      /* viền trắng như hình */
   box-shadow: 0 2px 6px rgba(0,0,0,.18);
 }
+/* Ẩn chữ và tạo chỗ để logo */
+.telcoBtn{
+  position: relative;
+  color: transparent;          /* ẩn chữ */
+  font-size: 0;                /* tránh chữ chiếm chỗ */
+  height: 56px;                /* tuỳ UI */
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo hiển thị bằng pseudo-element */
+.telcoBtn::before{
+  content: "";
+  width: 82%;
+  height: 28px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: block;
+}
+
+/* Gắn ảnh theo data-telco */
+.telcoBtn[data-telco="Viettel"]::before{
+  background-image: url("assets/images/VIETTEL.png");
+}
+.telcoBtn[data-telco="Mobifone"]::before{
+  background-image: url("assets/images/MOBIFONE.png");
+}
+.telcoBtn[data-telco="Vinaphone"]::before{
+  background-image: url("assets/images/VINAPHONE.png");
+}
+.telcoBtn[data-telco="Zing"]::before{
+  background-image: url("assets/images/ZING.png");
+}
+
+/* nút đang chọn */
+.telcoBtn.active{
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 2px rgba(255,122,0,0.15);
+}
+.telcoBtn{
+  height: 56px;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.telcoBtn img{
+  max-height: 28px;
+  max-width: 85%;
+  object-fit: contain;
+  display:block;
+  pointer-events:none;
+}
+.telcoBtn{
+  height: 56px;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.telcoBtn img{
+  max-height: 28px;
+  max-width: 85%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
